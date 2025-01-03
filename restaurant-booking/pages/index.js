@@ -16,7 +16,7 @@ export default function Home() {
   // Fetch bookings from the backend
   const fetchBookings = async () => {
     try {
-      const response = await axios.get('https://neinafull-backend.onrender.com/api/bookings');
+      const response = await axios.get('https://neinafull-b.onrender.com/api/bookings');
       setBookings(response.data);
     } catch (error) {
       console.error('Error fetching bookings:', error);
@@ -69,7 +69,7 @@ export default function Home() {
     };
 
     try {
-      const response = await axios.post('https://neinafull-backend.onrender.com/api/bookings', bookingData);
+      const response = await axios.post('https://neinafull-b.onrender.com/api/bookings', bookingData);
       toast.success('Booking Successful');
       setName('');
       setContact('');
@@ -88,7 +88,7 @@ export default function Home() {
   // Delete a booking
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`https://neinafull-backend.onrender.com/api/bookings/${id}`);
+      await axios.delete(`https://neinafull-b.onrender.com/api/bookings/${id}`);
       toast.success('Booking deleted successfully');
       fetchBookings();
     } catch (error) {
