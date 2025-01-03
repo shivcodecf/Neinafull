@@ -4,12 +4,12 @@ const cors = require('cors');
 const app = express();
 
 // Configure CORS with explicit options
-// app.use(cors({
-//     origin: 'http://localhost:3001', // Frontend URL
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
-//     allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
-//     credentials: true, // If using cookies or authentication headers
-// }));
+app.use(cors({
+    origin: 'http://localhost:3001', // Frontend URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+    credentials: true, // If using cookies or authentication headers
+}));
 
 
 
