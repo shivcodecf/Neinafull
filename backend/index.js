@@ -80,27 +80,22 @@ app.get('/api/bookings', async (req, res) => {
 });
 
 // DELETE Route to remove a booking based on contact and name
-app.delete('/api/bookings/:id', async (req, res) => {
-  const { id } = req.params;
+// Assuming API_URL is set to 'https://neinafull-bac.onrender.com'
+const API_URL = 'https://neinafull-bac.onrender.com';
 
-  // Validate input fields
-  if (!id) {
-    return res.status(400).send('Missing required field: id');
-  }
+// Function to delete a booking
+const deleteBooking = (id) => {
+  axios.delete(`${API_URL}/api/bookings/${id}`)
+    .then(response => {
+      console.log('Booking successfully deleted:', response.data);
+      // Update your UI accordingly
+    })
+    .catch(error => {
+      console.error('Error deleting booking:', error);
+      // Handle the error in the UI
+    });
+};
 
-  try {
-    const deletedBooking = await Booking.findByIdAndDelete(id);
-
-    if (!deletedBooking) {
-      return res.status(404).send('Booking not found');
-    }
-
-    return res.status(200).send('Booking successfully deleted');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error deleting booking');
-  }
-});
 
 const port = process.env.PORT || 5000;
 
