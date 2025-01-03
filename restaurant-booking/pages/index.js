@@ -88,7 +88,7 @@ export default function Home() {
   // Delete a booking
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`https://neinafull-bac.onrender.com/bookings/${id}`);
+      await axios.delete(`https://neinafull-bac.onrender.com/api/bookings/${id}`);
       toast.success('Booking deleted successfully');
       fetchBookings();
     } catch (error) {
