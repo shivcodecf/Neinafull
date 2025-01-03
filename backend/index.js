@@ -1,11 +1,25 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-
 const app = express();
+
+// Configure CORS with explicit options
+app.use(cors({
+    origin: 'http://localhost:3001', // Frontend URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+    credentials: true, // If using cookies or authentication headers
+}));
+
+
+
+// Apply CORS middleware
+
+
+
 app.use(
 	cors({
-		origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+		origin: ['http://localhost:3001', 'http://127.0.0.1:3001'],
 		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
 		credentials:true,
 	})
@@ -14,7 +28,7 @@ app.use(
 app.use(express.json());
 
 // MongoDB connection
-mongoose.connect('Apna url daalo/restaurant-booking').then(
+mongoose.connect('mongodb+srv://shivamyadav2113128:9o67AjZt72AKXHun@intern.iq67n.mongodb.net/?retryWrites=true&w=majority&appName=intern/restaurant-booking').then(
   console.log("Database connection successfully established")
 ).catch((err)=>{
   console.log("Error connecting to Mongo");
@@ -41,7 +55,7 @@ app.post('/api/bookings', async (req, res) => {
 
   try {
     // Check if a booking with the same name and contact already exists
-    const existingBooking = await Booking.findOne({ name, contact });
+    const existingBooking = await Booking.findOne({date});
 
     if (existingBooking) {
       return res.status(400).send('Booking already exists with the same name and contact');
@@ -88,7 +102,8 @@ app.delete('/api/bookings/:id', async (req, res) => {
   }
 });
 
+const port = process.env.PORT || 5000;
 
-app.listen(5000, () => {
+app.listen(port, () => {
   console.log('Server running on http://localhost:5000');
 });
