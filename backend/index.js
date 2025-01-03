@@ -4,94 +4,106 @@ const cors = require('cors');
 const app = express();
 
 // Configure CORS with explicit options
-app.use(cors({
-    origin: 'https://neinafull-fro1.onrender.com', // Frontend URL
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
-    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
-    credentials: true, // If using cookies or authentication headers
-}));
+// app.use(cors({
+//     origin: 'http://localhost:3001', // Frontend URL
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+//     allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+//     credentials: true, // If using cookies or authentication headers
+// }));
 
+
+
+// Apply CORS middleware
+
+
+
+// app.use(
+// 	cors({
+// 		origin: ['http://localhost:3001', 'http://127.0.0.1:3001'],
+// 		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+// 		credentials:true,
+// 	})
+// )
+// ;
 app.use(express.json());
 
 // MongoDB connection
-mongoose.connect('mongodb+srv://shivamyadav2113128:9o67AjZt72AKXHun@intern.iq67n.mongodb.net/restaurant_booking', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then(() => {
-    console.log("Database connection successfully established");
-}).catch((err) => {
-    console.error("Error connecting to MongoDB:", err);
-});
+mongoose.connect('mongodb+srv://shivamyadav2113128:9o67AjZt72AKXHun@intern.iq67n.mongodb.net/?retryWrites=true&w=majority&appName=intern/restaurant-booking').then(
+  console.log("Database connection successfully established")
+).catch((err)=>{
+  console.log("Error connecting to Mongo");
+  console.error(err);});
 
 // Schema & Model
 const bookingSchema = new mongoose.Schema({
-    name: String,
-    contact: String,
-    guests: Number,
-    date: String, // Ensure consistent format (e.g., YYYY-MM-DD)
-    time: String, // Add time for precise slot management
+  name: String,
+  contact: String,
+  guests: Number,
+  date: Date,
 });
 
 const Booking = mongoose.model('Booking', bookingSchema);
 
 // Routes
-// Create a new booking
 app.post('/api/bookings', async (req, res) => {
-    const { name, contact, guests, date, time } = req.body;
+  const { name, contact, guests, date } = req.body;
 
-    // Validate input fields
-    if (!name || !contact || !guests || !date || !time) {
-        return res.status(400).json({ success: false, message: 'Missing required fields' });
+  // Validate input fields
+  if (!name || !contact || !guests || !date) {
+    return res.status(400).send('Missing required fields');
+  }
+
+  try {
+    // Check if a booking with the same name and contact already exists
+    const existingBooking = await Booking.findOne({date});
+
+    if (existingBooking) {
+      return res.status(400).send('Booking already exists with the same name and contact');
     }
 
-    try {
-        // Check if a booking with the same date and time already exists
-        const existingBooking = await Booking.findOne({ date, time });
+    // If no existing booking, create a new one
+    const booking = new Booking(req.body);
+    await booking.save();
+    return res.status(201).json({
+      success:true ,
+      message:"booking successfully",
 
-        if (existingBooking) {
-            return res.status(400).json({ success: false, message: 'Time slot already booked' });
-        }
-
-        // If no existing booking, create a new one
-        const booking = new Booking({ name, contact, guests, date, time });
-        await booking.save();
-        return res.status(201).json({ success: true, message: 'Booking successfully created', booking });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ success: false, message: 'Error saving booking' });
-    }
+     });
+  } catch (err) {
+     return res.status(500).send('Error Saving Booking');
+  }
 });
 
-// Fetch all bookings
 app.get('/api/bookings', async (req, res) => {
-    try {
-        const bookings = await Booking.find();
-        return res.status(200).json(bookings);
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ success: false, message: 'Error fetching bookings' });
-    }
+  const bookings = await Booking.find();
+  res.json(bookings);
 });
 
-// Delete a booking by ID
+// DELETE Route to remove a booking based on contact and name
 app.delete('/api/bookings/:id', async (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    try {
-        const deletedBooking = await Booking.findByIdAndDelete(id);
+  // Validate input fields
+  if (!id) {
+    return res.status(400).send('Missing required field: id');
+  }
 
-        if (!deletedBooking) {
-            return res.status(404).json({ success: false, message: 'Booking not found' });
-        }
+  try {
+    const deletedBooking = await Booking.findByIdAndDelete(id);
 
-        return res.status(200).json({ success: true, message: 'Booking successfully deleted' });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ success: false, message: 'Error deleting booking' });
+    if (!deletedBooking) {
+      return res.status(404).send('Booking not found');
     }
+
+    return res.status(200).send('Booking successfully deleted');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error deleting booking');
+  }
 });
 
 const port = process.env.PORT || 5000;
+
 app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+  console.log('Server running on http://localhost:5000');
 });
